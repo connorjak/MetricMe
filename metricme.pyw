@@ -60,7 +60,9 @@ double_val = 3.0
 
 #######################################
 ### Actions ###########################
-
+def save():
+    filename1 = datetime.now().strftime("%Y%m%d-%H%M%S")
+    copyfile("userdata/metrics.json","userdata/metrics_"+str(filename1)+".json")
 
 #######################################
 ### UI PORTIONS #######################
@@ -94,13 +96,14 @@ def ui_update(width, height, fonts):
             )
 
             if clicked_save:
-                filename1 = datetime.now().strftime("%Y%m%d-%H%M%S")
-                copyfile("userdata/metrics.json","userdata/metrics_"+str(filename1)+".json")
+                save()
 
             if clicked_quit:
                 exit(0)
 
             imgui.end_menu()
+        if(imgui.button("Save")):
+            save()
         imgui.end_main_menu_bar()
 
     # imgui.show_test_window()
@@ -110,7 +113,8 @@ def ui_update(width, height, fonts):
         year = doc["meta"]["StartYear"]
         month = doc["meta"]["StartMonth"]
         day = doc["meta"]["StartDay"]
-        startDate = datetime(year,month,day,hour=7)
+        hour = doc["meta"]["StartHour"]
+        startDate = datetime(year,month,day,hour)
         dateDelta = datetime.now() - startDate
         weekDecimal = dateDelta.seconds / (7.0*24*60*60)
         weekPercent = weekDecimal*100
@@ -164,6 +168,7 @@ def ui_update(width, height, fonts):
     with open("userdata/metrics.json","r+") as metricsJSON:
         doc = json.load(metricsJSON)
 
+        imgui.slider_float("Week %", weekPercent, 0, 100, format="%.1f %%")
         imgui.text(doc["meta"]["Desc"])
         imgui.separator()
 
@@ -185,8 +190,15 @@ def ui_update(width, height, fonts):
             #percentage of the way from min to max
             percent = 100 *  (frac-min)/(max-min) 
 
+            if(percent < weekPercent):
+                col = imgui_ex.rgba_color(0.3,0.1, 0.03)
+                imgui.push_style_color(imgui.COLOR_FRAME_BACKGROUND, col.r,col.g,col.b)
+
             imgui.slider_float(str(num) + "/" + str(den), percent, 0, 100, format="%2.1f %%")
             
+            if(percent < weekPercent):
+                imgui.pop_style_color()
+
             wasChanged_, num = imgui.input_float("", num, step=1.0, format="%.3f")
 
             if(wasChanged_):
