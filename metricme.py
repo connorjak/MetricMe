@@ -90,24 +90,36 @@ def ui_update(width, height, fonts):
     imgui.set_next_window_position(0,imgui.get_text_line_height_with_spacing())
     imgui.begin("MetricMe", True)
     
+    fonts.pushHeadingFont()
     imgui.text("Add Metric")
+    fonts.popFont()
+    imgui.separator()
 
     wasChanged1, newName = imgui.input_text("Name", newName, 30)
-    wasChanged2, newNum = imgui.input_text("Numerator", newNum, 150)
-    wasChanged3, newDenom = imgui.input_text("Denominator", newDenom, 150)
-    wasChanged4, newMin = imgui.input_text("Min", newMin, 150)
-    wasChanged4, newMax = imgui.input_text("Max", newMax, 150)
+    wasChanged2, newNum = imgui.input_double("Numerator", newNum)
+    wasChanged3, newDenom = imgui.input_double("Denominator", newDenom)
+    wasChanged4, newMin = imgui.input_double("Min", newMin)
+    wasChanged5, newMax = imgui.input_double("Max", newMax)
 
+    if(newNum<0.0):
+        newNum = 0.0
+    if(newDenom<0.00000001):
+        newDenom = 1.0
+    if(newMin<0.0):
+        newMin = 0.0
+    if(newMax<0.00000001):
+        newMax = 0.00000001
 
     if(imgui.button("Add")):
         with open("userdata/metrics.json","r+") as metricsJSON:
             doc = json.load(metricsJSON)
-            newMetric = {newName: {"Numerator": 1.0,
-            "Denominator": 1.0, 
-            "Min": 0.0,
-            "Max": 0.0
-            }}
-            doc["metrics"].update(newMetric)
+            newMetric = {"Name": newName,
+            "Numerator": newNum,
+            "Denominator": newDenom, 
+            "Min": newMin,
+            "Max": newMax
+            }
+            doc["metrics"].append(newMetric)
 
             #rewrite JSON
             metricsJSON.seek(0)
@@ -116,13 +128,44 @@ def ui_update(width, height, fonts):
 
 
     imgui.separator()
+    fonts.pushHeadingFont()
     imgui.text("My Metrics")
+    fonts.popFont()
+    imgui.separator()
 
-    with open("userdata/metrics.json") as metricsJSON:
-        metrics = json.load(metricsJSON)["metrics"]
+    with open("userdata/metrics.json","r+") as metricsJSON:
+        doc = json.load(metricsJSON)
+        metrics = doc["metrics"]
         # print(metrics)
         for metric in metrics:
-            imgui.text(metric)
+            name = metric["Name"]
+            imgui.text(name)
+            imgui.indent()
+            num = metric["Numerator"]
+            den = metric["Denominator"]
+            min = metric["Min"]
+            max = metric["Max"]
+            frac = num/den
+
+            imgui.slider_float(str(num) + "/" + str(den), frac, min, max, format="")
+            imgui.unindent()
+
+            if(imgui.button("-")):
+                metric["Numerator"] = num - 1
+
+                #rewrite JSON
+                metricsJSON.seek(0)
+                metricsJSON.truncate()
+                json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
+            imgui.same_line()
+            if(imgui.button("+")):
+                metric["Numerator"] = num + 1
+
+                #rewrite JSON
+                metricsJSON.seek(0)
+                metricsJSON.truncate()
+                json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
+                
     
     imgui.end()
 
@@ -132,7 +175,7 @@ def ui_update(width, height, fonts):
 ### MAIN ##############################
 
 def main():
-    window = pyglet.window.Window(width=1280, height=720, resizable=True)
+    window = pyglet.window.Window(width=360, height=480, resizable=True)
     gl.glClearColor(0.3, 0.3, 0.3, 1)
     imgui.create_context()
     impl = PygletRenderer(window)
