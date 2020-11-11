@@ -13,6 +13,12 @@
 
 #######################################
 ### SETUP / PREREQUISITES #############
+import os
+import sys
+
+abspath = os.path.abspath(sys.argv[0])
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 #######################################
 ### IMPORTS ###########################
@@ -28,7 +34,7 @@ from imgui.integrations.pyglet import PygletRenderer
 # import subprocess
 # import signal
 # import psutil
-# from shutil import copyfile
+from shutil import copyfile
 import json
 import time
 from datetime import *
@@ -79,9 +85,17 @@ def ui_update(width, height, fonts):
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
 
+            clicked_save, selected_quit = imgui.menu_item(
+                "Save", 'Cmd+S', False, True
+            )
+
             clicked_quit, selected_quit = imgui.menu_item(
                 "Quit", 'Cmd+Q', False, True
             )
+
+            if clicked_save:
+                filename1 = datetime.now().strftime("%Y%m%d-%H%M%S")
+                copyfile("userdata/metrics.json","userdata/metrics_"+str(filename1)+".json")
 
             if clicked_quit:
                 exit(0)
