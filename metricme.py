@@ -24,12 +24,14 @@ from pyglet import gl
 import imgui
 from imgui.integrations.pyglet import PygletRenderer
 # import os
-from sys import platform
+# from sys import platform
 # import subprocess
 # import signal
 # import psutil
 # from shutil import copyfile
 import json
+import time
+from datetime import *
 
 import ImguiExtensions as imgui_ex
 
@@ -48,6 +50,7 @@ newNum = 0.0
 newDenom = 7.0
 newMin = 0.0
 newMax = 1.0
+double_val = 3.0
 
 #######################################
 ### Actions ###########################
@@ -66,6 +69,7 @@ def ui_update(width, height, fonts):
     global newDenom
     global newMin
     global newMax
+    global double_val
 
     imgui.new_frame()
 
@@ -86,9 +90,20 @@ def ui_update(width, height, fonts):
         imgui.end_main_menu_bar()
 
     # imgui.show_test_window()
+
+    with open("userdata/metrics.json","r") as metricsJSON:
+        doc = json.load(metricsJSON)
+        year = doc["meta"]["StartYear"]
+        month = doc["meta"]["StartMonth"]
+        day = doc["meta"]["StartDay"]
+        startDate = datetime(year,month,day,hour=7)
+        dateDelta = datetime.now() - startDate
+        weekDecimal = dateDelta.seconds / (7.0*24*60*60)
+        weekPercent = weekDecimal*100
+
     imgui.set_next_window_size(width, height - imgui.get_text_line_height_with_spacing())
     imgui.set_next_window_position(0,imgui.get_text_line_height_with_spacing())
-    imgui.begin("MetricMe", True)
+    imgui.begin("MetricMe - Week Percentage: " + "{:.1f}".format(weekPercent) + "%", True)
     
     fonts.pushHeadingFont()
     imgui.text("Add Metric")
@@ -96,10 +111,10 @@ def ui_update(width, height, fonts):
     imgui.separator()
 
     wasChanged1, newName = imgui.input_text("Name", newName, 30)
-    wasChanged2, newNum = imgui.input_double("Numerator", newNum)
-    wasChanged3, newDenom = imgui.input_double("Denominator", newDenom)
-    wasChanged4, newMin = imgui.input_double("Min", newMin)
-    wasChanged5, newMax = imgui.input_double("Max", newMax)
+    wasChanged2, newNum = imgui.input_float("Numerator", newNum, step=1.0, format="%.3f")
+    wasChanged3, newDenom = imgui.input_float("Denominator", newDenom, step=1.0, format="%.3f")
+    wasChanged4, newMin = imgui.input_float("Min", newMin, step=1.0, format="%.3f")
+    wasChanged5, newMax = imgui.input_float("Max", newMax, step=1.0, format="%.3f")
 
     if(newNum<0.0):
         newNum = 0.0
@@ -126,7 +141,6 @@ def ui_update(width, height, fonts):
             metricsJSON.truncate()
             json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
 
-
     imgui.separator()
     fonts.pushHeadingFont()
     imgui.text("My Metrics")
@@ -135,36 +149,69 @@ def ui_update(width, height, fonts):
 
     with open("userdata/metrics.json","r+") as metricsJSON:
         doc = json.load(metricsJSON)
+
+        imgui.text(doc["meta"]["Desc"])
+        imgui.separator()
+
         metrics = doc["metrics"]
         # print(metrics)
+
+        index = 0
         for metric in metrics:
+            imgui.push_id(str(index))
             name = metric["Name"]
             imgui.text(name)
-            imgui.indent()
+            # imgui.indent()
             num = metric["Numerator"]
             den = metric["Denominator"]
             min = metric["Min"]
             max = metric["Max"]
             frac = num/den
 
-            imgui.slider_float(str(num) + "/" + str(den), frac, min, max, format="")
-            imgui.unindent()
+            #percentage of the way from min to max
+            percent = 100 *  (frac-min)/(max-min) 
 
-            if(imgui.button("-")):
-                metric["Numerator"] = num - 1
+            imgui.slider_float(str(num) + "/" + str(den), percent, 0, 100, format="%2.1f %%")
+            
+            wasChanged_, num = imgui.input_float("", num, step=1.0, format="%.3f")
+
+            if(wasChanged_):
+                doc["metrics"][index]["Numerator"] = num
 
                 #rewrite JSON
                 metricsJSON.seek(0)
                 metricsJSON.truncate()
                 json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
             imgui.same_line()
-            if(imgui.button("+")):
-                metric["Numerator"] = num + 1
+            # if(imgui.button(" - ")):
+            #     doc["metrics"][index]["Numerator"] = num - 1
+
+            #     #rewrite JSON
+            #     metricsJSON.seek(0)
+            #     metricsJSON.truncate()
+            #     json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
+            # imgui.same_line()
+            # if(imgui.button(" + ")):
+            #     doc["metrics"][index]["Numerator"] = num + 1
+
+            #     #rewrite JSON
+            #     metricsJSON.seek(0)
+            #     metricsJSON.truncate()
+            #     json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
+            # imgui.same_line(spacing=50)
+            if(imgui.button("Delete")):
+                doc["metrics"].pop(index)
 
                 #rewrite JSON
                 metricsJSON.seek(0)
                 metricsJSON.truncate()
                 json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
+
+            # imgui.unindent()
+            # imgui.spacing()
+            imgui.pop_id()
+            imgui.separator()
+            index += 1
                 
     
     imgui.end()
