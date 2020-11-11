@@ -14,20 +14,20 @@ class ImguiFontSet:
         io = imgui.get_io()
 
         # Cascadia
-        self.cascadiaCodePL_16 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Cascadia/ttf/CascadiaCodePL.ttf", 16)
-        self.cascadiaCodePL_20 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Cascadia/ttf/CascadiaCodePL.ttf", 20)
-        self.cascadiaCodePL_24 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Cascadia/ttf/CascadiaCodePL.ttf", 24)
+        self.cascadiaCodePL_16 = io.fonts.add_font_from_file_ttf("Fonts/Cascadia/ttf/CascadiaCodePL.ttf", 16)
+        self.cascadiaCodePL_20 = io.fonts.add_font_from_file_ttf("Fonts/Cascadia/ttf/CascadiaCodePL.ttf", 20)
+        self.cascadiaCodePL_24 = io.fonts.add_font_from_file_ttf("Fonts/Cascadia/ttf/CascadiaCodePL.ttf", 24)
 
-        self.cascadiaCodePL_SemiLight_16 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Cascadia/ttf/static/CascadiaCodePL-SemiLight.ttf", 16)
+        self.cascadiaCodePL_SemiLight_16 = io.fonts.add_font_from_file_ttf("Fonts/Cascadia/ttf/static/CascadiaCodePL-SemiLight.ttf", 16)
 
-        self.cascadiaMonoPL_16 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Cascadia/ttf/CascadiaMonoPL.ttf", 16)
-        self.cascadiaMonoPL_20 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Cascadia/ttf/CascadiaMonoPL.ttf", 20)
+        self.cascadiaMonoPL_16 = io.fonts.add_font_from_file_ttf("Fonts/Cascadia/ttf/CascadiaMonoPL.ttf", 16)
+        self.cascadiaMonoPL_20 = io.fonts.add_font_from_file_ttf("Fonts/Cascadia/ttf/CascadiaMonoPL.ttf", 20)
 
         # Futura
-        self.futura_medium_bt_18 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Futura/futura medium bt.ttf", 18)
-        self.futura_medium_bt_20 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Futura/futura medium bt.ttf", 20)
-        self.futura_heavy_bt_20 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Futura/futura Heavy font.ttf", 20)
-        self.futura_heavy_bt_24 = io.fonts.add_font_from_file_ttf("toolAssets/Fonts/Futura/futura Heavy font.ttf", 24)
+        self.futura_medium_bt_18 = io.fonts.add_font_from_file_ttf("Fonts/Futura/futura medium bt.ttf", 18)
+        self.futura_medium_bt_20 = io.fonts.add_font_from_file_ttf("Fonts/Futura/futura medium bt.ttf", 20)
+        self.futura_heavy_bt_20 = io.fonts.add_font_from_file_ttf("Fonts/Futura/futura Heavy font.ttf", 20)
+        self.futura_heavy_bt_24 = io.fonts.add_font_from_file_ttf("Fonts/Futura/futura Heavy font.ttf", 24)
 
         # What you should actually use
         # self.title =    self.cascadiaCodePL_24
