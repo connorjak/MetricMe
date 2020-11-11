@@ -23,12 +23,13 @@ import pyglet
 from pyglet import gl
 import imgui
 from imgui.integrations.pyglet import PygletRenderer
-import os
+# import os
 from sys import platform
-import subprocess
-import signal
-import psutil
-from shutil import copyfile
+# import subprocess
+# import signal
+# import psutil
+# from shutil import copyfile
+import json
 
 import ImguiExtensions as imgui_ex
 
@@ -42,7 +43,11 @@ import ImguiExtensions as imgui_ex
 
 #######################################
 ### GLOBALS ###########################
-
+newName = ""
+newNum = 0.0
+newDenom = 7.0
+newMin = 0.0
+newMax = 1.0
 
 #######################################
 ### Actions ###########################
@@ -51,13 +56,16 @@ import ImguiExtensions as imgui_ex
 #######################################
 ### UI PORTIONS #######################
 
-    # os.chdir(oldpath)
 
 #######################################
 ### UI UPDATE #########################
 
 def ui_update(width, height, fonts):
-    global currentMode
+    global newName
+    global newNum
+    global newDenom
+    global newMin
+    global newMax
 
     imgui.new_frame()
 
@@ -80,16 +88,41 @@ def ui_update(width, height, fonts):
     # imgui.show_test_window()
     imgui.set_next_window_size(width, height - imgui.get_text_line_height_with_spacing())
     imgui.set_next_window_position(0,imgui.get_text_line_height_with_spacing())
-    imgui.begin("Test", True)
+    imgui.begin("MetricMe", True)
     
-    # clicked, currentMode = imgui.combo(
-    #     "Server Mode", currentMode, ["Clientless", "ShortCircuitOneClient", "Launcher", "ServerHandlerAPI"]
-    # )
+    imgui.text("Add Metric")
+
+    wasChanged1, newName = imgui.input_text("Name", newName, 30)
+    wasChanged2, newNum = imgui.input_text("Numerator", newNum, 150)
+    wasChanged3, newDenom = imgui.input_text("Denominator", newDenom, 150)
+    wasChanged4, newMin = imgui.input_text("Min", newMin, 150)
+    wasChanged4, newMax = imgui.input_text("Max", newMax, 150)
 
 
+    if(imgui.button("Add")):
+        with open("userdata/metrics.json","r+") as metricsJSON:
+            doc = json.load(metricsJSON)
+            newMetric = {newName: {"Numerator": 1.0,
+            "Denominator": 1.0, 
+            "Min": 0.0,
+            "Max": 0.0
+            }}
+            doc["metrics"].update(newMetric)
 
-    imgui.text("MetricMe")
+            #rewrite JSON
+            metricsJSON.seek(0)
+            metricsJSON.truncate()
+            json.dump(doc, metricsJSON, indent = 4, sort_keys=True)
 
+
+    imgui.separator()
+    imgui.text("My Metrics")
+
+    with open("userdata/metrics.json") as metricsJSON:
+        metrics = json.load(metricsJSON)["metrics"]
+        # print(metrics)
+        for metric in metrics:
+            imgui.text(metric)
     
     imgui.end()
 
