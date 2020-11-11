@@ -15,6 +15,7 @@
 ### SETUP / PREREQUISITES #############
 import os
 import sys
+from time import localtime
 
 abspath = os.path.abspath(sys.argv[0])
 dname = os.path.dirname(abspath)
@@ -38,6 +39,11 @@ from shutil import copyfile
 import json
 import time
 from datetime import *
+
+import pytz
+from datetime import datetime, timezone
+from tzlocal import get_localzone
+
 
 import ImguiExtensions as imgui_ex
 
@@ -114,9 +120,11 @@ def ui_update(width, height, fonts):
         month = doc["meta"]["StartMonth"]
         day = doc["meta"]["StartDay"]
         hour = doc["meta"]["StartHour"]
-        startDate = datetime(year,month,day,hour)
-        dateDelta = datetime.now() - startDate
-        weekDecimal = dateDelta.seconds / (7.0*24*60*60)
+        CST = pytz.timezone('US/Central')
+        startDate = datetime(year,month,day,hour,tzinfo=CST)
+
+        dateDelta = datetime.now().astimezone(CST) - startDate
+        weekDecimal = (dateDelta.days) / 7.0 + (dateDelta.seconds / (7.0*24*60*60))
         weekPercent = weekDecimal*100
 
     imgui.set_next_window_size(width, height - imgui.get_text_line_height_with_spacing())
